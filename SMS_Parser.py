@@ -1,95 +1,5 @@
 #__author__ = 'MTabaz'
-# import matplotlib.pyplot as plt
-# import pylab
 from datetime import datetime
-# import numpy as np
-
-hex_string = "0107911326040000F0040B911346610089F60000208062917314080CC8F71D14969741F977FD07"
-#print datetime(02,8,26,19,37,41)
-# print datetime.strptime("02-8-26 19:37:41","%y-%m-%d %H:%M:%S")
-#
-# x=[datetime.strptime("02-8-26 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-8-27 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-02 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-03 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-04 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-05 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-06 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-07 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-08 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-09 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-10 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-11 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-12 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-13 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-14 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-15 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-16 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-17 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-18 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-19 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-20 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-21 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-22 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-23 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-24 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-25 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-26 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-27 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-28 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-30 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S"),
-#    datetime.strptime("02-9-01 19:37:41","%y-%m-%d %H:%M:%S")]
-
-# x=["02-8-26 19:37:41","02-8-27 19:37:41",
-#    "02-9-01 19:37:41",
-#    "02-9-02 19:37:41","02-9-03 19:37:41",
-#    "02-9-04 19:37:41","02-9-05 19:37:41",
-#    "02-9-06 19:37:41","02-9-07 19:37:41",
-#    "02-9-08 19:37:41","02-9-09 19:37:41",
-#    "02-9-10 19:37:41","02-9-11 19:37:41",
-#    "02-9-12 19:37:41","",
-#    "02-9-14 19:37:41","02-9-15 19:37:41",
-#    "","02-9-17 19:37:41",
-#    "02-9-18 19:37:41","02-9-19 19:37:41",
-#    "02-9-20 19:37:41","02-9-21 19:37:41",
-#    "02-9-22 19:37:41","02-9-23 19:37:41",
-#    "02-9-24 19:37:41","",
-#    "02-9-26 19:37:41","02-9-27 19:37:41",
-#    "02-9-28 19:37:41","02-9-01 19:37:41",
-#    "02-9-30 19:37:41","",
-#    "02-9-01 19:37:41","02-9-01 19:37:41",
-#    "02-9-01 19:37:41","02-9-01 19:37:41",
-#    "02-9-01 19:37:41","02-9-01 19:37:41",
-#    "02-9-01 19:37:41"]
-# y=[]
-# for i in range(0,40):
-#     y.append(i+1)
-#
-# for i in range(10,30):
-#     y[i] = 0
-#
-# for i in range(10,30):
-#     if i%2 == 0:
-#         y[i] = i
-#y = y[(y>=0) & (y<=40)]
-# y.sort()
-#y=[i for i in range(0,40)]
-
-#plt.autoscale(False,'both')
-
-# plt.plot(x,y,"ro")
-# plt.show()
-# beautify the x-labels
-
-# fig = pylab.figure()
-# ax = fig.gca()
-# ax.set_autoscale_on(False)
-#
-# ax.plot(x,y)
-# ax.axis([x[0],x[39],y[0],y[39]])
-
-# fig.show()
-#fig.savefig("test")
-
-
-# pylab.figure(1)
-# c = range(len(x))
-# pylab.xticks(c, x)
-# pylab.ylim([0,40])
-# pylab.gcf().autofmt_xdate()
-# pylab.plot(c,y,"g")
-#
-# pylab.show()
 
 class SMSParser:
     def __init__(self):
@@ -236,6 +146,4 @@ class SMSParser:
         return SMS_OBJ[0]["TP_SCTS"]
         
         
-# SMS = SMSParser()
-# SMS.SMSDetails(hex_string)
         
