@@ -19,7 +19,7 @@ class SIMScan:
             index = "{:04x}".format(i)
 
             #Read MF/DF/EF Header
-            ser.write('AT+CRSM=192,'+str(int(index,16))+',0,0,100\r')
+            ser.write('AT+CRSM=192,'+str(int(index,16))+',0,0\r')
             res = ser.readall()
 
             #Invalid Prameter
@@ -91,15 +91,15 @@ class SIMScan:
     def ReadRawData(self,conn):
         for key in self.lis_144.keys():
             #parse header data
-            match = re.search(r'\+CRSM:\s*144,\s*\d+,\s*\"(0000(\w\w\w\w)\w+(\w\w)(\w\w))\"',self.lis_144[key])
+            match = re.search(r'(\+CRSM:\s*144,\s*\d+,\s*\")?(0000(\w\w\w\w)\w+(\w\w)(\w\w))\"?',self.lis_144[key])
             if match:
                 print "\nFile ID: "+ key + ", File Header: " +  match.group(1)
                 #Convert file size from hex to int
-                FileSize = int(match.group(2), 16)
+                FileSize = int(match.group(3), 16)
                 #Convert File type from hex to int
-                FileType = int(match.group(3), 16)
+                FileType = int(match.group(4), 16)
                 #Convert Record size from hex to int
-                RecordSize = int(match.group(4), 16)
+                RecordSize = int(match.group(5), 16)
 
                 #read Elementary file dare in case of plan data
                 if FileType == 0:
