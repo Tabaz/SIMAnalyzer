@@ -14,19 +14,6 @@ class SMSParser:
         self.binary_string = ""
         #Filters
         self.FILTER         = '00000001'
-        # self.MASK_TWO       = 1
-        # self.MASK_THREE     = 2
-        # self.MASK_FOUR      = 3
-        # self.MASK_FIVE      = 4
-        # self.MASK_SIX       = 5
-        # self.MASK_SEVEN     = 6
-        # self.MASK_EIGHT     = 7
-        # #Byte Size
-        # self.TP_OA_SIZE     = 16
-        # self.TP_PI_SIZE     = 8
-        # self.TP_DCS_SIZE    = 8
-        # self.TP_SCTS_SIZE   = 56
-        # self.TP_UDL_SIZE    = 16
 
         self.SMSC_PLAN = {  0   :"Unknown",
                             1   :"ISDN/telephone numbering plan",
@@ -37,6 +24,7 @@ class SMSParser:
                             8   :"National numbering plan",
                             9   :"Private numbering plan",
                             10  :"ERMES numbering plan"}
+                            
         self.SMSC_TYPE = {  8   :"Unknown",
                             9   :"International number",
                             10  :"National number",
@@ -45,6 +33,7 @@ class SMSParser:
                             13  :"Alphanumeric",
                             14: "Abbreviated number",
                             15: "Reserved"}
+        #Stuct for Submit messages parameters                    
         self.SMS_SUBMIT = {
             "TP_SMSC_LENGTH"    : 0, #SMS centre length
             "TP_SMSC_TYPE"      : 0, #SMS centre number type
@@ -56,6 +45,7 @@ class SMSParser:
             "TP_DATA_LENGTH"    : 0, #User data length
             "TP_DATA"           : 0, #Contain SMS data
         }
+        #Stuct for Deliever messages parameters 
         self.SMS_DELIEVER = {
             "TP_SMSC_LENGTH"    : 0, #SMS centre length
             "TP_SMSC_TYPE"      : 0, #SMS centre number type
@@ -67,13 +57,15 @@ class SMSParser:
             "TP_DATA_LENGTH"    : 0, #User data length
             "TP_DATA"           : 0, #Contain SMS data
         }
-        
+    
+    #Convert from HEX to DINARY    
     def GetBinaryStrig(self,hexformat):
         binaryformat = ''
         for i in range(0,len(hexformat)):
             binaryformat += "{0:04b}".format(int(hexformat[i],16))
         return binaryformat
-
+    
+    #parse SMS header to extract SMS conficurations 
     def GetSMSConfig(self,binary):
         index = 0
         Flag = [0,0,0,0,0,0,0,0]
@@ -92,7 +84,8 @@ class SMSParser:
         self.TP_MMS     = Flag[2]
         self.TP_RP      = Flag[7]
         self.TP_UDHI    = Flag[6]
-
+    
+    #Extract SMS timestamp 
     def GetTimeStamp(self,hex_string):
         timestamp = ''
         #print hex_string
@@ -105,14 +98,15 @@ class SMSParser:
             elif i < 10:
                 timestamp += ":"
         timeZone = hex_string[13]+hex_string[12]
-        #print timestamp
-        #print "Timestamp: " + str(datetime.strptime(timestamp,"%y-%m-%d %H:%M:%S"))
         #return str(datetime.strptime(timestamp,"%y-%m-%d %H:%M:%S")) #+ " GMT+" + timeZone
         return datetime.strptime(timestamp,"%y-%m-%d %H:%M:%S") #+ " GMT+" + timeZone
-
+    
+    #Get Phone number Type
     def GetNumberType(self,string,hex_string):
         print string +": "+ self.SMSC_TYPE[int(hex_string[0])]+", "+ self.SMSC_PLAN[int(hex_string[1])]
-
+    
+    #TODO:
+    #extract SMS Informations for sent and recieved messages 
     def SMSDetails(self,hex_string):
         binary_string = self.GetBinaryStrig(hex_string[0:2])
         self.GetSMSConfig(binary_string)
