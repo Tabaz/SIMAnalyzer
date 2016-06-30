@@ -14,36 +14,42 @@ class SIMScan:
         #List of all unknown responses
         self.lis_oth = []
 
-    def Scan(self,ser):
-        for i in range(0,int(0xFFFF),1):
-            index = "{:04x}".format(i)
+    def Scan(self,ser,startindex):
+        state = False
 
-            #Read MF/DF/EF Header
-            ser.write('AT+CRSM=192,'+str(int(index,16))+',0,0\r')
-            res = ser.readall()
-
-            #Invalid Prameter
-            match_103 = re.search(r'\+CRSM:\s*103',res)
-
-            # Found Header
-            # i.e: +CRSM: 144, 0, "0000000E6F53040011FFBB01020000"
-            match_144 = re.search(r'\+CRSM:\s*144,\s*\d+,\s*\"(\w+)\"',res)
-
-            # Address not found
-            match_148 = re.search(r'\+CRSM:\s*148',res)
-
-            if match_103:
-                self.lis_103.append(index)
-            elif match_144:
-                #Add valid Header
-                self.lis_144[index] = match_144.group(1)
+        for i in range(startindex,int(0xFFFF),1):
+            try:
+                index = "{:04x}".format(i)
+                print index
+                #Read MF/DF/EF Header
+                ser.write('AT+CRSM=192,'+str(int(index,16))+',0,0\r')
+                res = ser.readall()
                 print res
-            elif match_148:
-                self.lis_148.append(index)
-            else:
-                self.lis_oth.append(index)
+                #Invalid Prameter
+                match_103 = re.search(r'\+CRSM:\s*103',res)
 
-        return self.lis_144
+                # Found Header
+                # i.e: +CRSM: 144, 0, "0000000E6F53040011FFBB01020000"
+                match_144 = re.search(r'\+CRSM:\s*14[45],\s*\d+,\s*\"(\w+)\"',res)
+
+                # Address not found
+                match_148 = re.search(r'\+CRSM:\s*148',res)
+
+                if match_103:
+                    self.lis_103.append(index)
+                elif match_144:
+                    #Add valid Header
+                    self.lis_144[index] = match_144.group(1)
+                    print res
+                elif match_148:
+                    self.lis_148.append(index)
+                else:
+                    self.lis_oth.append(index)
+            except:
+                print "Scaning Not Compeleted, Program stopped at address: 0x" + "{:04x}".format(i)
+                return (state,self.lis_144)
+        state = True
+        return (state,self.lis_144)
 
     def ReadEF_File(self,id,len,conn):
         #input checker
@@ -52,6 +58,7 @@ class SIMScan:
         #read file data
         conn.write('AT+CRSM=178,'+str(int(id,16))+',0,0,'+str(len)+'\r')
         res = conn.readall()
+        #print res
         #check of successful execution
         match = re.search(r'\+CRSM:\s*144,\s*\d+,\s*\"(\w+)\"',res)
         if match:
@@ -72,6 +79,7 @@ class SIMScan:
             #Read record data
             conn.write('AT+CRSM=178,'+str(int(id,16))+','+str(RECORD_ID)+',10,'+str(recordlen)+'\r')
             res = conn.readall()
+            #print res
             if res:
                 #check if command execution was successful or not
                 match_ok = re.search(r'\+CRSM:\s*144,\s*\d+,\s*\"(\w+)\"',res)
@@ -91,15 +99,16 @@ class SIMScan:
     def ReadRawData(self,conn):
         for key in self.lis_144.keys():
             #parse header data
-            match = re.search(r'(\+CRSM:\s*144,\s*\d+,\s*\")?(0000(\w\w\w\w)\w+(\w\w)(\w\w))\"?',self.lis_144[key])
-            if match:
-                print "\nFile ID: "+ key + ", File Header: " +  match.group(1)
+            SIMTYPE = int(self.lis_144[key][0:4],16)
+            #handling SIM/USIM headers
+            if SIMTYPE == 0:
+                print "\nFile ID: "+ key + ", File Header: " +  self.lis_144[key]
                 #Convert file size from hex to int
-                FileSize = int(match.group(3), 16)
+                FileSize = int(self.lis_144[key][4:8],16)
                 #Convert File type from hex to int
-                FileType = int(match.group(4), 16)
+                FileType = int(self.lis_144[key][26:28],16)
                 #Convert Record size from hex to int
-                RecordSize = int(match.group(5), 16)
+                RecordSize = int(self.lis_144[key][28:30],16)
 
                 #read Elementary file dare in case of plan data
                 if FileType == 0:
@@ -116,6 +125,28 @@ class SIMScan:
                     else:
                         #If MF/DF header which doesn't condain any body
                         print "File Size: " + str(FileSize)
+            #Handling UICC SIM
+            else:
+                print "\nFile ID: "+ key + ", File Header: " +  self.lis_144[key]
+                Type = int(self.lis_144[key][12:14],16)
+                RecordSize = int(self.lis_144[key][14:16],16)
+                NumberOfRecords = int(self.lis_144[key][16:18],16)
+                FileSize = NumberOfRecords * RecordSize
+                if Type == 0:
+                    (state, RawData) = self.ReadEF_Record(key,FileSize,RecordSize,conn)
+                    if len(RawData) > 0:
+                        print "File Size: " + str(FileSize)
+                        for ele in RawData.keys():
+                            print "Record ID: "+ str(ele) + " ,Record Size: "+ str(RecordSize) + " ,Raw Data: " + RawData[ele]
+                    else:
+                        #If MF/DF header which doesn't condain any body
+                        print "File Size: " + str(FileSize)
+                else:
+                    match = re.search(r'\w+00200?(\w\w)(\w\w)+',self.lis_144[key])
+                    if match:
+                        FileSize = int(match.group(1),16)
+                        RawData = self.ReadEF_File(key, FileSize,conn)
+                        print "File Size: "+ str(FileSize) + " ,Raw Data: " + RawData
 
         return 1
 
@@ -134,14 +165,18 @@ if __name__ == "__main__":
         print "Scanning SIM Address Space...."
         print "####################################"
 
-        #Scanner.ReadRawData(ser)
-        #exit()
-
         Headers = {}
+        
         #Scan the SIM address space from "0000" to "FFFF"
-        headers = Scanner.Scan(ser)
+        #Should start from "0" but in some cases the first
+        #index is RST request to the SIM so the process 
+        #should start from "1"
+        (state,headers) = Scanner.Scan(ser,1)
 
-        print "Parsing Headers Completed..."
+        if state == True:
+            print "Parsing Headers Completed..."
+        else:
+            print "Parsing Headers Completed with Error !!!"
         print "Reading SIM Raw Data!"
 
         #Reade Raw data for the carved headers
